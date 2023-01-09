@@ -1,13 +1,23 @@
 import Head from "next/head";
-import styles from "../styles/Home.module.css";
 
 import { Inter } from "@next/font/google";
 import { Text } from "@chakra-ui/react";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Stack,
+  Heading,
+  Button,
+  Image,
+} from "@chakra-ui/react";
 import Projects from "./Projects";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home({ data }) {
+export default function Home({ data, repo_res }) {
+  console.log(repo_res.items);
   return (
     <>
       <Head>
@@ -18,7 +28,7 @@ export default function Home({ data }) {
       </Head>
       <main
         style={{
-          border: "2px solid",
+          // border: "2px solid",
           width: "100%",
           height: "800px",
           display: "flex",
@@ -29,7 +39,7 @@ export default function Home({ data }) {
         {/* Homepage */}
         <div
           style={{
-            border: "2px solid red",
+            // border: "2px solid red",
             width: "23%",
             height: "auto",
             display: "flex",
@@ -203,13 +213,25 @@ export default function Home({ data }) {
           >
             <h3>Experience</h3>
           </div>
-          {console.log(data)}
+          {/* {console.log(data)} */}
         </div>
 
         {/* Project Page*/}
-        <div style={{ border: "2px solid red", width: "65%", height: "auto" }}>
-          <h1>Project Page</h1>
-          <Projects />
+
+        <div
+          style={{
+            border: "2px solid red",
+            width: "65%",
+            height: "700px",
+            display: "grid",
+            gridTemplateColumns: "repeat(2,1fr)",
+            // gridTemplateRows: "repeat(100px,300px)",
+            gap: "5px",
+          }}
+        >
+          {repo_res.items.map((repo) => (
+            <Projects key={repo.id} {...repo} />
+          ))}
         </div>
       </main>
     </>
@@ -218,12 +240,17 @@ export default function Home({ data }) {
 
 export async function getServerSideProps(context) {
   const res = await fetch("https://api.github.com/users/dRahul97");
+  const repo = await fetch(
+    "https://api.github.com/search/repositories?q=user:dRahul97+fork:true&sort=updated&per_page=10&type=Repositories"
+  );
+  const repo_res = await repo.json();
 
   const data = await res.json();
 
   return {
     props: {
       data,
+      repo_res,
     },
   };
 }
